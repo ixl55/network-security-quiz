@@ -1,0 +1,757 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Network Security Quiz</title>
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Share+Tech+Mono&family=Exo+2:wght@300;400;600;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #050d1a;
+    --surface: #0a1628;
+    --surface2: #0f2040;
+    --surface3: #162b50;
+    --accent: #00d4ff;
+    --accent2: #0090cc;
+    --accent3: #00ff9d;
+    --danger: #ff3d5a;
+    --warning: #ffbe00;
+    --text: #e2eeff;
+    --text-muted: #6a8caa;
+    --border: rgba(0,212,255,0.15);
+    --glow: 0 0 20px rgba(0,212,255,0.3);
+    --glow-green: 0 0 20px rgba(0,255,157,0.3);
+    --glow-red: 0 0 20px rgba(255,61,90,0.3);
+    --font-main: 'Exo 2', sans-serif;
+    --font-display: 'Rajdhani', sans-serif;
+    --font-mono: 'Share Tech Mono', monospace;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font-main);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  body::before {
+    content: '';
+    position: fixed; inset: 0;
+    background-image:
+      linear-gradient(rgba(0,212,255,0.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,212,255,0.04) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none; z-index: 0;
+  }
+
+  body::after {
+    content: '';
+    position: fixed; top: -50%; left: -50%;
+    width: 200%; height: 200%;
+    background: radial-gradient(ellipse at 30% 20%, rgba(0,144,204,0.08) 0%, transparent 50%),
+                radial-gradient(ellipse at 70% 80%, rgba(0,255,157,0.05) 0%, transparent 50%);
+    pointer-events: none; z-index: 0;
+  }
+
+  .scanline {
+    position: fixed; top: 0; left: 0; right: 0; height: 2px;
+    background: linear-gradient(90deg, transparent, var(--accent), transparent);
+    opacity: 0.25; animation: scan 7s linear infinite; z-index: 2; pointer-events: none;
+  }
+  @keyframes scan { 0%{top:0} 100%{top:100vh} }
+
+  .container {
+    position: relative; z-index: 1;
+    max-width: 920px; margin: 0 auto; padding: 40px 24px;
+  }
+
+  /* HEADER */
+  .header { text-align: center; margin-bottom: 48px; }
+
+  .header-badge {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: rgba(0,212,255,0.07);
+    border: 1px solid rgba(0,212,255,0.2);
+    border-radius: 30px; padding: 6px 20px;
+    font-family: var(--font-mono); font-size: 0.7rem;
+    color: var(--accent); letter-spacing: 3px;
+    margin-bottom: 22px; text-transform: uppercase;
+  }
+
+  .live-dot {
+    width: 7px; height: 7px; border-radius: 50%;
+    background: var(--accent3); box-shadow: 0 0 8px var(--accent3);
+    animation: pulse 2s infinite;
+  }
+  @keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.4;transform:scale(0.75)} }
+
+  h1 {
+    font-family: var(--font-display);
+    font-size: clamp(2.2rem, 5vw, 3.4rem);
+    font-weight: 700; letter-spacing: 2px; line-height: 1.1;
+    margin-bottom: 10px; text-transform: uppercase;
+    background: linear-gradient(135deg, #ffffff 30%, var(--accent) 100%);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+  }
+
+  .header-sub {
+    font-size: 0.88rem; color: var(--text-muted);
+    font-family: var(--font-mono); letter-spacing: 1px;
+  }
+
+  /* CONTROLS */
+  .controls-panel {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 18px; padding: 30px; margin-bottom: 32px;
+    display: grid; gap: 28px;
+    box-shadow: 0 4px 40px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.04);
+  }
+
+  .section-label {
+    font-family: var(--font-mono); font-size: 0.7rem;
+    color: var(--accent); letter-spacing: 3px; text-transform: uppercase;
+    margin-bottom: 14px; display: flex; align-items: center; gap: 10px;
+  }
+  .section-label::after { content:''; flex:1; height:1px; background:var(--border); }
+
+  .controls-row { display: flex; gap: 16px; flex-wrap: wrap; }
+
+  .control-group { flex: 1; min-width: 170px; }
+
+  .control-group label {
+    display: block; font-family: var(--font-mono); font-size: 0.68rem;
+    color: var(--text-muted); letter-spacing: 2px; text-transform: uppercase; margin-bottom: 8px;
+  }
+
+  .control-group select {
+    width: 100%; background: var(--surface2); border: 1px solid var(--border);
+    border-radius: 10px; padding: 12px 16px; color: var(--text);
+    font-family: var(--font-main); font-size: 0.92rem; cursor: pointer;
+    outline: none; appearance: none; transition: border-color 0.2s, box-shadow 0.2s;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%2300d4ff' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat; background-position: right 14px center;
+  }
+  .control-group select:focus { border-color: var(--accent); box-shadow: var(--glow); }
+
+  /* TOPICS */
+  .topics-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px,1fr)); gap: 10px; }
+
+  .topic-checkbox {
+    display: flex; align-items: center; gap: 10px;
+    background: var(--surface2); border: 1px solid var(--border);
+    border-radius: 10px; padding: 11px 14px;
+    cursor: pointer; transition: all 0.2s; user-select: none;
+  }
+  .topic-checkbox:hover { border-color: rgba(0,212,255,0.35); background: var(--surface3); }
+  .topic-checkbox input[type="checkbox"] { display: none; }
+
+  .check-icon {
+    width: 18px; height: 18px; border: 2px solid var(--text-muted);
+    border-radius: 5px; display: flex; align-items: center; justify-content: center;
+    transition: all 0.2s; flex-shrink: 0;
+  }
+  .topic-checkbox input:checked ~ .check-icon { background: var(--accent); border-color: var(--accent); }
+  .topic-checkbox input:checked ~ .check-icon::after { content:'✓'; color:#050d1a; font-size:11px; font-weight:900; line-height:1; }
+  .topic-checkbox input:checked ~ .topic-name { color: var(--accent); }
+
+  .topic-name { font-size: 0.84rem; font-weight: 600; transition: color 0.2s; line-height: 1.3; }
+  .topic-count {
+    margin-left: auto; font-family: var(--font-mono); font-size: 0.68rem;
+    color: var(--text-muted); background: var(--surface3);
+    padding: 2px 8px; border-radius: 20px; flex-shrink: 0;
+  }
+
+  /* START BUTTON */
+  .btn-start {
+    width: 100%; padding: 16px;
+    background: linear-gradient(135deg, var(--accent2), var(--accent));
+    border: none; border-radius: 12px; color: #fff;
+    font-family: var(--font-display); font-size: 1.1rem;
+    font-weight: 700; letter-spacing: 2px; text-transform: uppercase;
+    cursor: pointer; transition: all 0.25s;
+    box-shadow: 0 4px 24px rgba(0,144,204,0.4);
+    position: relative; overflow: hidden;
+  }
+  .btn-start::before { content:''; position:absolute; inset:0; background:linear-gradient(135deg,transparent,rgba(255,255,255,0.15)); opacity:0; transition:opacity 0.3s; }
+  .btn-start:hover { transform:translateY(-2px); box-shadow:0 8px 30px rgba(0,144,204,0.5); }
+  .btn-start:hover::before { opacity:1; }
+  .btn-start:active { transform:translateY(0); }
+
+  /* QUIZ */
+  #quiz-area { display: none; }
+
+  .progress-info {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-bottom: 10px; font-family: var(--font-mono); font-size: 0.8rem;
+  }
+  .prog-label { color: var(--accent); }
+  .score-live { color: var(--accent3); }
+
+  .timer-display {
+    color: var(--warning); background: rgba(255,190,0,0.1);
+    border: 1px solid rgba(255,190,0,0.25); border-radius: 8px; padding: 3px 12px;
+  }
+  .timer-display.urgent { color:var(--danger); background:rgba(255,61,90,0.1); border-color:rgba(255,61,90,0.3); animation:blink 0.5s infinite; }
+  @keyframes blink { 50%{opacity:0.5} }
+
+  .progress-bar-wrap {
+    background: var(--surface2); border-radius: 100px; height: 5px;
+    margin-bottom: 28px; overflow: hidden; border: 1px solid var(--border);
+  }
+  .progress-bar-fill {
+    height: 100%; background: linear-gradient(90deg, var(--accent2), var(--accent3));
+    border-radius: 100px; transition: width 0.5s cubic-bezier(0.4,0,0.2,1);
+    box-shadow: 0 0 10px rgba(0,212,255,0.5);
+  }
+
+  /* QUESTION CARD */
+  .question-card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 20px; padding: 36px 38px; margin-bottom: 20px;
+    box-shadow: 0 4px 50px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.04);
+    animation: cardIn 0.4s cubic-bezier(0.16,1,0.3,1);
+    position: relative; overflow: hidden;
+  }
+  .question-card::before {
+    content:''; position:absolute; top:-40px; right:-40px;
+    width:160px; height:160px;
+    background:radial-gradient(circle, rgba(0,212,255,0.07) 0%, transparent 70%);
+    pointer-events:none;
+  }
+  @keyframes cardIn { from{opacity:0;transform:translateY(28px) scale(0.97)} to{opacity:1;transform:translateY(0) scale(1)} }
+
+  .q-meta { display:flex; align-items:center; gap:10px; margin-bottom:22px; flex-wrap:wrap; }
+
+  .q-topic-badge {
+    display: inline-flex; align-items: center; gap: 6px;
+    font-family: var(--font-mono); font-size: 0.68rem;
+    color: var(--accent); background: rgba(0,212,255,0.09);
+    border: 1px solid rgba(0,212,255,0.2); border-radius: 20px;
+    padding: 4px 12px; letter-spacing: 1px; text-transform: uppercase;
+  }
+  .q-number { font-family:var(--font-mono); font-size:0.72rem; color:var(--text-muted); margin-left:auto; }
+
+  .question-text {
+    font-size: 1.12rem; font-weight: 600; line-height: 1.65;
+    color: var(--text); margin-bottom: 26px; font-family: var(--font-main);
+  }
+
+  /* OPTIONS */
+  .options-grid { display: grid; gap: 11px; }
+
+  .option-btn {
+    display: flex; align-items: center; gap: 14px;
+    background: var(--surface2); border: 1px solid var(--border);
+    border-radius: 12px; padding: 13px 18px;
+    cursor: pointer; width: 100%; text-align: left;
+    color: var(--text); font-family: var(--font-main);
+    font-size: 0.97rem; font-weight: 400; transition: all 0.2s;
+  }
+  .option-btn:hover:not(:disabled) { border-color:rgba(0,212,255,0.4); background:var(--surface3); transform:translateX(4px); }
+
+  .option-letter {
+    width: 32px; height: 32px; border-radius: 8px;
+    background: var(--surface3); border: 1px solid rgba(0,212,255,0.2);
+    display: flex; align-items: center; justify-content: center;
+    font-family: var(--font-mono); font-size: 0.78rem; font-weight: 700;
+    color: var(--accent); flex-shrink: 0; transition: all 0.2s;
+  }
+
+  .option-btn.correct { border-color:var(--accent3); background:rgba(0,255,157,0.07); box-shadow:var(--glow-green); }
+  .option-btn.correct .option-letter { background:var(--accent3); color:#050d1a; border-color:var(--accent3); }
+  .option-btn.wrong { border-color:var(--danger); background:rgba(255,61,90,0.07); box-shadow:var(--glow-red); }
+  .option-btn.wrong .option-letter { background:var(--danger); color:#fff; border-color:var(--danger); }
+  .option-btn:disabled { cursor: default; }
+
+  /* FEEDBACK */
+  .feedback-banner {
+    display: none; align-items: center; gap: 12px;
+    padding: 13px 18px; border-radius: 11px;
+    font-weight: 600; font-size: 0.9rem; margin-top: 18px;
+    animation: fadeUp 0.3s ease;
+  }
+  @keyframes fadeUp { from{opacity:0;transform:translateY(6px)} to{opacity:1;transform:translateY(0)} }
+  .feedback-banner.correct { background:rgba(0,255,157,0.09); border:1px solid rgba(0,255,157,0.3); color:var(--accent3); display:flex; }
+  .feedback-banner.wrong { background:rgba(255,61,90,0.09); border:1px solid rgba(255,61,90,0.3); color:var(--danger); display:flex; }
+
+  /* NEXT */
+  .btn-next {
+    display: none; width: 100%; padding: 14px;
+    background: transparent; border: 1px solid var(--accent);
+    border-radius: 12px; color: var(--accent);
+    font-family: var(--font-display); font-size: 1rem;
+    font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase;
+    cursor: pointer; margin-top: 14px; transition: all 0.2s;
+  }
+  .btn-next:hover { background:var(--accent); color:#050d1a; box-shadow:var(--glow); }
+
+  /* SCORE PANEL */
+  #score-panel { display:none; text-align:center; padding:50px 20px 20px; animation:cardIn 0.5s cubic-bezier(0.16,1,0.3,1); }
+
+  .score-ring-wrap { position:relative; width:190px; height:190px; margin:0 auto 36px; }
+
+  .score-ring-outer {
+    position:absolute; inset:-12px; border-radius:50%;
+    border:1px solid rgba(0,212,255,0.12); animation:rotate 12s linear infinite;
+  }
+  .score-ring-outer::before {
+    content:''; position:absolute; top:-3px; left:50%;
+    width:6px; height:6px; border-radius:50%;
+    background:var(--accent); box-shadow:0 0 10px var(--accent); transform:translateX(-50%);
+  }
+  @keyframes rotate { to{transform:rotate(360deg)} }
+
+  .score-circle {
+    width:190px; height:190px; border-radius:50%;
+    border:2px solid var(--accent);
+    box-shadow:var(--glow), inset 0 0 50px rgba(0,212,255,0.04);
+    background:var(--surface);
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+  }
+
+  .score-number { font-family:var(--font-mono); font-size:3rem; font-weight:700; color:var(--accent); line-height:1; }
+  .score-label { font-family:var(--font-mono); font-size:0.65rem; color:var(--text-muted); letter-spacing:2px; margin-top:4px; text-transform:uppercase; }
+
+  .score-title {
+    font-family:var(--font-display); font-size:2.2rem; font-weight:700;
+    letter-spacing:1px; text-transform:uppercase; margin-bottom:8px;
+    background:linear-gradient(135deg,#fff,var(--accent));
+    -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;
+  }
+  .score-sub { color:var(--text-muted); font-size:0.9rem; margin-bottom:40px; }
+
+  .stats-row { display:grid; grid-template-columns:repeat(3,1fr); gap:14px; max-width:520px; margin:0 auto 36px; }
+
+  .stat-box { background:var(--surface); border:1px solid var(--border); border-radius:14px; padding:20px 14px; }
+  .stat-val { font-family:var(--font-mono); font-size:2rem; font-weight:700; line-height:1; }
+  .stat-val.g { color:var(--accent3); }
+  .stat-val.r { color:var(--danger); }
+  .stat-val.b { color:var(--accent); }
+  .stat-lbl { font-size:0.72rem; color:var(--text-muted); margin-top:5px; text-transform:uppercase; letter-spacing:1px; }
+
+  .action-btns { display:flex; gap:10px; justify-content:center; flex-wrap:wrap; margin-bottom:44px; }
+
+  .btn-action {
+    padding:13px 32px; border-radius:11px;
+    font-family:var(--font-display); font-size:0.95rem;
+    font-weight:700; letter-spacing:1.5px; text-transform:uppercase; cursor:pointer; transition:all 0.2s;
+  }
+  .btn-action.primary { background:linear-gradient(135deg,var(--accent2),var(--accent)); border:none; color:#fff; box-shadow:0 4px 20px rgba(0,144,204,0.4); }
+  .btn-action.primary:hover { transform:translateY(-2px); box-shadow:0 8px 28px rgba(0,144,204,0.5); }
+  .btn-action.outline { background:transparent; border:1px solid var(--accent); color:var(--accent); }
+  .btn-action.outline:hover { background:rgba(0,212,255,0.1); }
+
+  /* REVIEW */
+  .review-section { text-align:left; }
+
+  .review-title {
+    font-family:var(--font-mono); font-size:0.75rem; letter-spacing:3px;
+    color:var(--accent); text-transform:uppercase;
+    border-bottom:1px solid var(--border); padding-bottom:14px; margin-bottom:16px;
+  }
+
+  .review-item {
+    background:var(--surface); border:1px solid var(--border);
+    border-radius:12px; padding:16px 18px; margin-bottom:10px;
+    display:flex; gap:14px; align-items:flex-start;
+  }
+  .review-item.correct { border-left:3px solid var(--accent3); }
+  .review-item.wrong   { border-left:3px solid var(--danger); }
+
+  .review-icon { font-size:1rem; flex-shrink:0; margin-top:2px; }
+  .review-q { font-size:0.88rem; color:var(--text); line-height:1.5; font-weight:600; }
+  .review-ans { font-family:var(--font-mono); font-size:0.75rem; color:var(--text-muted); margin-top:5px; }
+  .review-ans .ca { color:var(--accent3); }
+  .review-ans .wa { color:var(--danger); }  /* PRINT STYLES */
+  @media print {
+    @page { size: A4; margin: 15mm 18mm; }
+    
+    .scanline, body::before, body::after, .header-badge, .header-sub { display: none !important; }
+    body { background: #fff !important; color: #111 !important; font-size: 10.5pt; }
+    .container { padding: 0; max-width: 100%; }
+    
+    h1 { 
+      -webkit-text-fill-color: #111 !important; color: #111 !important; 
+      background: none !important; font-size: 20pt; 
+      border-bottom: 2pt solid #0090cc; padding-bottom: 6pt; margin-bottom: 4pt; 
+    }
+
+    /* Hide UI elements */
+    .controls-panel, #config-area, .btn-next, .btn-start,
+    .action-btns, .progress-bar-wrap, .progress-info, #quiz-area { display: none !important; }
+
+    /* Print Results */
+    #score-panel { display: block !important; }
+    .score-ring-wrap { display: none; }
+    .score-circle { border-color: #0090cc; box-shadow: none; background: #fff !important; }
+    .score-number { color: #0090cc !important; }
+    .score-title { -webkit-text-fill-color: #111 !important; color: #111 !important; background: none !important; }
+    .score-sub, .stat-lbl { color: #555 !important; }
+    .stat-val.g { color: #008844 !important; }
+    .stat-val.r { color: #cc1133 !important; }
+    .stat-val.b { color: #0090cc !important; }
+    .stat-box { background: #f0f6ff !important; border-color: #ccc !important; }
+    .stats-row { display: grid !important; grid-template-columns: repeat(3, 1fr) !important; }
+    .review-item { background: #f8f9fa !important; border-color: #ddd !important; page-break-inside: avoid; display: flex !important; }
+    .review-item.correct { border-left: 3px solid #008844 !important; }
+    .review-item.wrong   { border-left: 3px solid #cc1133 !important; }
+    .review-q, .review-ans { color: #222 !important; }
+    .review-ans .ca { color: #008844 !important; }
+    .review-ans .wa { color: #cc1133 !important; }
+    .review-title { color: #0090cc !important; border-color: #aac !important; display: block !important; }
+    .review-section { margin-top: 20pt; display: block !important; }
+  }
+
+  @media (max-width:600px) {
+    .question-card { padding:22px 18px; }
+    .stats-row { grid-template-columns:1fr 1fr; }
+    .controls-row { flex-direction:column; }
+    .topics-grid { grid-template-columns:1fr; }
+    .action-btns { flex-direction:column; }
+    .btn-action { width:100%; }
+  }
+</style>
+</head>
+<body>
+<div class="scanline"></div>
+<div class="container">
+
+  <!-- HEADER -->
+  <div class="header">
+    <div class="header-badge"><span class="live-dot"></span> Practical Questions Bank</div>
+    <h1>Computer Network Security</h1>
+    <p class="header-sub">INTERACTIVE QUIZ SYSTEM &nbsp;|&nbsp; 50 QUESTIONS &nbsp;|&nbsp; 7 TOPICS</p>
+  </div>
+
+  <!-- CONFIG -->
+  <div id="config-area">
+    <div class="controls-panel">
+
+      <div>
+        <div class="section-label">⚙ Quiz Settings</div>
+        <div class="controls-row">
+          <div class="control-group">
+            <label>Number of Questions</label>
+            <select id="q-count">
+              <option value="10">10 Questions</option>
+              <option value="20">20 Questions</option>
+              <option value="30">30 Questions</option>
+              <option value="all">All Questions (50)</option>
+            </select>
+          </div>
+          <div class="control-group">
+            <label>Question Order</label>
+            <select id="q-order">
+              <option value="random">Randomized</option>
+              <option value="sequential">Sequential</option>
+            </select>
+          </div>
+          <div class="control-group">
+            <label>Timer per Question</label>
+            <select id="q-timer">
+              <option value="0">No Timer</option>
+              <option value="30">30 Seconds</option>
+              <option value="60">60 Seconds</option>
+              <option value="90">90 Seconds</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <div class="section-label">📚 Select Topics</div>
+        <div class="topics-grid" id="topics-grid"></div>
+      </div>
+
+      <button class="btn-start" onclick="startQuiz()">▶&nbsp;&nbsp;Start Quiz</button>
+    </div>
+  </div>
+
+  <!-- QUIZ -->
+  <div id="quiz-area">
+    <div class="progress-info">
+      <span class="prog-label" id="prog-text">Question 1 of 10</span>
+      <span class="timer-display" id="timer-display" style="display:none">⏱ --</span>
+      <span class="score-live" id="score-live">✅ 0 Correct</span>
+    </div>
+    <div class="progress-bar-wrap">
+      <div class="progress-bar-fill" id="prog-bar" style="width:0%"></div>
+    </div>
+
+    <div class="question-card">
+      <div class="q-meta">
+        <div class="q-topic-badge" id="q-topic">📡 Topic</div>
+        <div class="q-number" id="q-num">Q01</div>
+      </div>
+      <div class="question-text" id="q-text"></div>
+      <div class="options-grid" id="options-container"></div>
+      <div class="feedback-banner" id="feedback"></div>
+      <button class="btn-next" id="btn-next" onclick="nextQuestion()">Next Question →</button>
+    </div>
+  </div>
+
+  <!-- SCORE -->
+  <div id="score-panel">
+    <div class="score-ring-wrap">
+      <div class="score-ring-outer"></div>
+      <div class="score-circle">
+        <div class="score-number" id="final-pct">0%</div>
+        <div class="score-label">Final Score</div>
+      </div>
+    </div>
+    <div class="score-title" id="score-title">Well Done!</div>
+    <div class="score-sub" id="score-sub"></div>
+
+    <div class="stats-row">
+      <div class="stat-box"><div class="stat-val g" id="stat-correct">0</div><div class="stat-lbl">✅ Correct</div></div>
+      <div class="stat-box"><div class="stat-val r" id="stat-wrong">0</div><div class="stat-lbl">❌ Incorrect</div></div>
+      <div class="stat-box"><div class="stat-val b" id="stat-total">0</div><div class="stat-lbl">📋 Total</div></div>
+    </div>
+
+    <div class="action-btns">
+      <button class="btn-action primary" onclick="retryQuiz()">🔄 Retry Quiz</button>
+      <button class="btn-action outline" onclick="goHome()">🏠 Back to Settings</button>
+      <button class="btn-action outline" onclick="window.print()">🖨 Print Results</button>
+    </div>
+
+    <div class="review-section" id="review-section"></div>
+  </div>
+
+</div>
+
+<script>
+const ALL_QUESTIONS = [
+  // 1. Introduction to Network Security Principles
+  { id:1,  topic:"Introduction to Network Security Principles", q:"A company wants to ensure data is not altered during transmission. Which principle is this?", opts:["Authentication","Availability","Integrity","Confidentiality"], ans:2 },
+  { id:2,  topic:"Introduction to Network Security Principles", q:"Using HTTPS instead of HTTP primarily ensures:", opts:["Data encryption","IP masking","Data compression","Faster communication"], ans:0 },
+  { id:3,  topic:"Introduction to Network Security Principles", q:"Which attack targets availability?", opts:["SQL Injection","DDoS","MITM","Phishing"], ans:1 },
+  { id:4,  topic:"Introduction to Network Security Principles", q:"Hashing is mainly used for:", opts:["Compression","Encryption","Authentication","Data integrity"], ans:3 },
+  { id:5,  topic:"Introduction to Network Security Principles", q:"Which ensures only authorized users access a system?", opts:["Authentication","Integrity","Availability","Non-repudiation"], ans:0 },
+  { id:6,  topic:"Introduction to Network Security Principles", q:"A digital signature provides:", opts:["Compression","Speed","Integrity and authentication","Encryption only"], ans:2 },
+  { id:7,  topic:"Introduction to Network Security Principles", q:"Which is an example of a strong password?", opts:["abcdef","Admin@1234!","password","123456"], ans:1 },
+
+  // 2. Network Vulnerability Assessment
+  { id:8,  topic:"Network Vulnerability Assessment", q:"Purpose of vulnerability scanning?", opts:["Monitor logs","Identify weaknesses","Block traffic","Encrypt data"], ans:1 },
+  { id:9,  topic:"Network Vulnerability Assessment", q:"Tool for port scanning?", opts:["Metasploit","Wireshark","Nmap","Snort"], ans:2 },
+  { id:10, topic:"Network Vulnerability Assessment", q:"Open port 22 indicates:", opts:["FTP","SMTP","HTTP","SSH"], ans:3 },
+  { id:11, topic:"Network Vulnerability Assessment", q:"False positives mean:", opts:["System crash","Incorrect detection","Missed vulnerabilities","Network delay"], ans:1 },
+  { id:12, topic:"Network Vulnerability Assessment", q:"Credentialed scans provide:", opts:["No access","Less detail","Only external data","More accurate results"], ans:3 },
+  { id:13, topic:"Network Vulnerability Assessment", q:"After vulnerability identification:", opts:["Reporting","Encryption","Exploitation","Scanning"], ans:0 },
+  { id:14, topic:"Network Vulnerability Assessment", q:"Outdated software vulnerability:", opts:["Buffer overflow","Zero-day","Patch management issue","Misconfiguration"], ans:2 },
+
+  // 3. Firewalls & IDS/IPS
+  { id:15, topic:"Firewalls & IDS/IPS", q:"Firewall filtering by IP/port:", opts:["Proxy","Packet filtering","NGFW","Stateful"], ans:1 },
+  { id:16, topic:"Firewalls & IDS/IPS", q:"IDS stands for:", opts:["Intrusion Detection System","Internal Data Security","Internet Detection System","Integrated Defense Service"], ans:0 },
+  { id:17, topic:"Firewalls & IDS/IPS", q:"IPS differs because it:", opts:["Encrypts traffic","Logs only","Detects only","Prevents attacks"], ans:3 },
+  { id:18, topic:"Firewalls & IDS/IPS", q:"Tracks connection states:", opts:["Proxy","Stateless","Stateful firewall","Cloud firewall"], ans:2 },
+  { id:19, topic:"Firewalls & IDS/IPS", q:"Signature-based IDS detects:", opts:["Known attacks","All traffic","Unknown threats","Encryption errors"], ans:0 },
+  { id:20, topic:"Firewalls & IDS/IPS", q:"Blocks malicious traffic automatically:", opts:["IDS","Switch","IPS","Router"], ans:2 },
+  { id:21, topic:"Firewalls & IDS/IPS", q:"False negatives mean:", opts:["Missed attacks","Duplicate logs","System crash","Wrong alerts"], ans:0 },
+
+  // 4. VPNs
+  { id:22, topic:"VPNs", q:"VPN provides:", opts:["Public access","Secure communication","Faster internet","Compression"], ans:1 },
+  { id:23, topic:"VPNs", q:"VPN protocol:", opts:["SMTP","IPSec","FTP","HTTP"], ans:1 },
+  { id:24, topic:"VPNs", q:"VPN tunnel ensures:", opts:["Open access","Data loss","Packet duplication","Encrypted communication"], ans:3 },
+  { id:25, topic:"VPNs", q:"SSL VPN layer:", opts:["Physical","Network","Application","Transport"], ans:2 },
+  { id:26, topic:"VPNs", q:"Split tunneling:", opts:["All traffic via VPN","No encryption","Faster scanning","Some traffic bypass VPN"], ans:3 },
+  { id:27, topic:"VPNs", q:"Remote VPN connects:", opts:["Server to server","LAN to LAN","User to network","Two networks"], ans:2 },
+  { id:28, topic:"VPNs", q:"VPN misuse risk:", opts:["Data backup","Unauthorized access","Faster speed","Compression"], ans:1 },
+
+  // 5. Wireless Security
+  { id:29, topic:"Wireless Security", q:"WPA2 encryption:", opts:["AES","SHA1","DES","MD5"], ans:0 },
+  { id:30, topic:"Wireless Security", q:"Hidden SSID provides:", opts:["Authentication","Minimal security","Encryption","Strong security"], ans:1 },
+  { id:31, topic:"Wireless Security", q:"Rogue AP:", opts:["Firewall","Switch","Authorized AP","Unauthorized AP"], ans:3 },
+  { id:32, topic:"Wireless Security", q:"Capturing Wi-Fi traffic:", opts:["Spoofing","Sniffing","DDoS","Phishing"], ans:1 },
+  { id:33, topic:"Wireless Security", q:"MAC filtering is:", opts:["Encryption method","Strong security","Weak security","VPN type"], ans:2 },
+  { id:34, topic:"Wireless Security", q:"WPA3 improves:", opts:["Blocking users","Stronger authentication","Slowing network","Removing encryption"], ans:1 },
+  { id:35, topic:"Wireless Security", q:"Evil twin attack:", opts:["Malware","Encryption","Fake access point","Firewall bypass"], ans:2 },
+
+  // 6. Traffic Analysis
+  { id:36, topic:"Traffic Analysis", q:"Packet sniffing tool:", opts:["Nessus","Snort","Wireshark","Nmap"], ans:2 },
+  { id:37, topic:"Traffic Analysis", q:"Traffic spike indicates:", opts:["Backup","Normal usage","Attack","Update"], ans:2 },
+  { id:38, topic:"Traffic Analysis", q:"NetFlow used for:", opts:["Encryption","Firewall rules","Traffic monitoring","Password cracking"], ans:2 },
+  { id:39, topic:"Traffic Analysis", q:"Common protocol analyzed:", opts:["CMOS","USB","BIOS","TCP/IP"], ans:3 },
+  { id:40, topic:"Traffic Analysis", q:"Behavioral detection finds:", opts:["Known attacks","Unknown anomalies","Passwords","IP addresses"], ans:1 },
+  { id:41, topic:"Traffic Analysis", q:"IDS tool:", opts:["Outlook","Excel","Snort","Chrome"], ans:2 },
+  { id:42, topic:"Traffic Analysis", q:"Packet header includes:", opts:["Virus","File content","Password","Metadata"], ans:3 },
+  { id:43, topic:"Traffic Analysis", q:"Deep packet inspection:", opts:["Only ports","Only IP","Full packet content","Only headers"], ans:2 },
+
+  // 7. Incident Response
+  { id:44, topic:"Incident Response", q:"First step:", opts:["Recovery","Detection","Analysis","Eradication"], ans:1 },
+  { id:45, topic:"Incident Response", q:"Forensics focuses on:", opts:["Encryption","Prevention","Backup","Evidence collection"], ans:3 },
+  { id:46, topic:"Incident Response", q:"Chain of custody ensures:", opts:["Encryption","Fast response","Evidence integrity","Logging"], ans:2 },
+  { id:47, topic:"Incident Response", q:"Log analysis helps:", opts:["Encryption","Backup","Compression","Attack tracing"], ans:3 },
+  { id:48, topic:"Incident Response", q:"Containment aims:", opts:["Delete logs","Restart system","Stop attack spread","Encrypt data"], ans:2 },
+  { id:49, topic:"Incident Response", q:"Forensics tool:", opts:["Chrome","FTK","Excel","Photoshop"], ans:1 },
+  { id:50, topic:"Incident Response", q:"Post-incident activity:", opts:["Lessons learned","Disconnect network","Delete data","Ignore issue"], ans:0 }
+];
+
+const TOPICS = [...new Set(ALL_QUESTIONS.map(q => q.topic))];
+let quizQuestions=[], currentIndex=0, score=0, userAnswers=[];
+let timerVal=0, timerInterval=null, timeLeft=0;
+
+// Build checkboxes
+(function buildTopics(){
+  const grid = document.getElementById('topics-grid');
+  TOPICS.forEach(topic => {
+    const count = ALL_QUESTIONS.filter(q=>q.topic===topic).length;
+    const label = document.createElement('label');
+    label.className = 'topic-checkbox';
+    label.innerHTML = `
+      <input type="checkbox" value="${topic}" checked>
+      <div class="check-icon"></div>
+      <span class="topic-name">${topic}</span>
+      <span class="topic-count">${count} Qs</span>`;
+    grid.appendChild(label);
+  });
+})();
+
+function startQuiz(){
+  const checked = [...document.querySelectorAll('#topics-grid input:checked')].map(c=>c.value);
+  if(!checked.length){ alert('Please select at least one topic.'); return; }
+
+  let pool = ALL_QUESTIONS.filter(q=>checked.includes(q.topic));
+  const countSel = document.getElementById('q-count').value;
+  const order    = document.getElementById('q-order').value;
+  timerVal       = parseInt(document.getElementById('q-timer').value);
+
+  if(order==='random') pool = pool.sort(()=>Math.random()-0.5);
+  const count = countSel==='all' ? pool.length : Math.min(parseInt(countSel), pool.length);
+  quizQuestions = pool.slice(0, count);
+  currentIndex=0; score=0; userAnswers=[];
+
+  document.getElementById('config-area').style.display='none';
+  document.getElementById('score-panel').style.display='none';
+  document.getElementById('quiz-area').style.display='block';
+  renderQuestion();
+}
+
+function renderQuestion(){
+  const q=quizQuestions[currentIndex], total=quizQuestions.length;
+  document.getElementById('prog-text').textContent=`Question ${currentIndex+1} of ${total}`;
+  document.getElementById('score-live').textContent=`✅ ${score} Correct`;
+  document.getElementById('prog-bar').style.width=`${(currentIndex/total)*100}%`;
+  document.getElementById('q-topic').textContent=`📡 ${q.topic}`;
+  document.getElementById('q-num').textContent=`Q${String(q.id).padStart(2,'0')}`;
+  document.getElementById('q-text').textContent=q.q;
+
+  const letters=['A','B','C','D'];
+  const cont=document.getElementById('options-container');
+  cont.innerHTML='';
+  q.opts.forEach((opt,i)=>{
+    const btn=document.createElement('button');
+    btn.className='option-btn';
+    btn.innerHTML=`<span class="option-letter">${letters[i]}</span><span>${opt}</span>`;
+    btn.onclick=()=>handleAnswer(i);
+    cont.appendChild(btn);
+  });
+
+  const fb=document.getElementById('feedback');
+  fb.className='feedback-banner'; fb.textContent='';
+  document.getElementById('btn-next').style.display='none';
+
+  clearInterval(timerInterval);
+  const td=document.getElementById('timer-display');
+  if(timerVal>0){
+    td.style.display='inline-block'; td.className='timer-display';
+    timeLeft=timerVal; td.textContent=`⏱ ${timeLeft}s`;
+    timerInterval=setInterval(()=>{
+      timeLeft--;
+      td.textContent=`⏱ ${timeLeft}s`;
+      if(timeLeft<=5) td.className='timer-display urgent';
+      if(timeLeft<=0){ clearInterval(timerInterval); handleAnswer(-1); }
+    },1000);
+  } else { td.style.display='none'; }
+}
+
+function handleAnswer(chosen){
+  clearInterval(timerInterval);
+  const q=quizQuestions[currentIndex];
+  const buttons=document.querySelectorAll('.option-btn');
+  const fb=document.getElementById('feedback');
+  const letters=['A','B','C','D'];
+
+  buttons.forEach(b=>b.disabled=true);
+  const correct = chosen===q.ans;
+  if(correct) score++;
+  userAnswers.push({q, chosen, correct});
+
+  buttons.forEach((b,i)=>{
+    if(i===q.ans) b.classList.add('correct');
+    else if(i===chosen && !correct) b.classList.add('wrong');
+  });
+
+  if(chosen===-1){
+    fb.className='feedback-banner wrong';
+    fb.textContent=`⏰ Time's up! Correct answer: ${letters[q.ans]}. ${q.opts[q.ans]}`;
+  } else if(correct){
+    fb.className='feedback-banner correct';
+    fb.textContent=`✅ Correct! Well done.`;
+  } else {
+    fb.className='feedback-banner wrong';
+    fb.textContent=`❌ Incorrect. Correct answer: ${letters[q.ans]}. ${q.opts[q.ans]}`;
+  }
+
+  document.getElementById('score-live').textContent=`✅ ${score} Correct`;
+  const btnNext=document.getElementById('btn-next');
+  btnNext.style.display='block';
+  btnNext.textContent=currentIndex<quizQuestions.length-1 ? 'Next Question →' : '🏁 View Results';
+}
+
+function nextQuestion(){
+  currentIndex++;
+  if(currentIndex<quizQuestions.length) renderQuestion();
+  else showResults();
+}
+
+function showResults(){
+  document.getElementById('quiz-area').style.display='none';
+  document.getElementById('score-panel').style.display='block';
+
+  const total=quizQuestions.length;
+  const pct=Math.round((score/total)*100);
+  document.getElementById('final-pct').textContent=`${pct}%`;
+  document.getElementById('stat-correct').textContent=score;
+  document.getElementById('stat-wrong').textContent=total-score;
+  document.getElementById('stat-total').textContent=total;
+
+  let title,sub;
+  if(pct>=90){ title='🏆 Excellent!'; sub='Outstanding performance — you master network security.'; }
+  else if(pct>=75){ title='⭐ Very Good!'; sub='Strong result — keep pushing forward.'; }
+  else if(pct>=60){ title='👍 Good'; sub='Decent score — review the weak areas.'; }
+  else { title='💡 Keep Studying'; sub="Don't give up — review the material and try again."; }
+
+  document.getElementById('score-title').textContent=title;
+  document.getElementById('score-sub').textContent=sub;
+
+  const rev=document.getElementById('review-section');
+  rev.innerHTML='<div class="review-title">📋 Answer Review</div>';
+  const letters=['A','B','C','D'];
+
+  userAnswers.forEach(ua=>{
+    const div=document.createElement('div');
+    div.className=`review-item ${ua.correct?'correct':'wrong'}`;
+    const chosenText = ua.chosen===-1
+      ? '<span class="wa">Time\'s up — no answer</span>'
+      : `<span class="${ua.correct?'ca':'wa'}">${letters[ua.chosen]}. ${ua.q.opts[ua.chosen]}</span>`;
+    const correctLine = !ua.correct
+      ? ` &nbsp;|&nbsp; Correct: <span class="ca">${letters[ua.q.ans]}. ${ua.q.opts[ua.q.ans]}</span>`
+      : '';
+    div.innerHTML=`
+      <div class="review-icon">${ua.correct?'✅':'❌'}</div>
+      <div>
+        <div class="review-q">Q${String(ua.q.id).padStart(2,'0')}. ${ua.q.q}</div>
+        <div class="review-ans">Your answer: ${chosenText}${correctLine}</div>
+      </div>`;
+    rev.appendChild(div);
+  });
+}
+
+function retryQuiz(){ document.getElementById('score-panel').style.display='none'; document.getElementById('config-area').style.display='block'; }
+function goHome(){ retryQuiz(); }
+</script>
+</body>
+</html>
