@@ -27,43 +27,19 @@ Check out the live application here:
 - **Typography:** Google Fonts (Rajdhani, Exo 2, Share Tech Mono).
 - **Deployment:** Firebase Hosting.
 
----
-
-## 📸 Screenshots
-*(Add your screenshots here)*
 
 ---
 
 ## ⚙️ How to Run Locally
-1. **Clone the repository:**
-   ```bash
-   git clone https://github.com/ixl55/network-security-quiz.git
-   ```
-2. **Navigate to the directory:**
-   ```bash
-   cd network-security-quiz
-   ```
-3. **Open `index.html` in your browser.**
+1. **Open `index.html` in your browser.**
 
 ---
 
-## ☁️ Deployment
-This project is configured for **Firebase Hosting**. To deploy your own version:
-1. Install Firebase CLI: `npm install -g firebase-tools`
-2. Login: `firebase login`
-3. Initialize: `firebase init hosting`
-4. Deploy: `firebase deploy`
 
----
+# end
+<img src="https://th.bing.com/th/id/R.ba83d4b3fd2099e44fe580d519e08037?rik=NJoyNWb%2boU7wXQ&pid=ImgRaw&r=0" width="300">
 
-## 📄 License
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
----
 
-## 👨‍💻 Author
-**ixl55**  
-GitHub: [@ixl55](https://github.com/ixl55)
+**Use it legally..**
 
----
-*Created with ❤️ for Network Security Education.*
