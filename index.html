@@ -371,19 +371,19 @@
     
     .scanline, body::before, body::after, .header-badge, .header-sub { display: none !important; }
     body { background: #fff !important; color: #111 !important; font-size: 10.5pt; }
-    .container { padding: 0; max-width: 100%; }
+    .container { padding: 0 !important; max-width: 100% !important; margin: 0 !important; }
     
     h1 { 
       -webkit-text-fill-color: #111 !important; color: #111 !important; 
-      background: none !important; font-size: 20pt; 
-      border-bottom: 2pt solid #0090cc; padding-bottom: 6pt; margin-bottom: 4pt; 
+      background: none !important; font-size: 22pt; text-align: center;
+      border-bottom: 2pt solid #0090cc; padding-bottom: 8pt; margin-bottom: 20pt; 
     }
 
-    /* Hide UI elements */
+    /* Hide UI elements by default */
     .controls-panel, #config-area, .btn-next, .btn-start,
     .action-btns, .progress-bar-wrap, .progress-info, #quiz-area { display: none !important; }
 
-    /* Print Results */
+    /* Print Results View */
     #score-panel { display: block !important; }
     .score-ring-wrap { display: none; }
     .score-circle { border-color: #0090cc; box-shadow: none; background: #fff !important; }
@@ -395,14 +395,45 @@
     .stat-val.b { color: #0090cc !important; }
     .stat-box { background: #f0f6ff !important; border-color: #ccc !important; }
     .stats-row { display: grid !important; grid-template-columns: repeat(3, 1fr) !important; }
-    .review-item { background: #f8f9fa !important; border-color: #ddd !important; page-break-inside: avoid; display: flex !important; }
+    
+    .review-section { margin-top: 20pt; display: block !important; }
+    .review-title { color: #0090cc !important; border-color: #aac !important; display: block !important; }
+    .review-item { background: #f8f9fa !important; border-color: #ddd !important; page-break-inside: avoid; display: flex !important; margin-bottom: 10px; }
     .review-item.correct { border-left: 3px solid #008844 !important; }
     .review-item.wrong   { border-left: 3px solid #cc1133 !important; }
     .review-q, .review-ans { color: #222 !important; }
     .review-ans .ca { color: #008844 !important; }
     .review-ans .wa { color: #cc1133 !important; }
-    .review-title { color: #0090cc !important; border-color: #aac !important; display: block !important; }
-    .review-section { margin-top: 20pt; display: block !important; }
+
+    /* Print All Questions View */
+    body.is-printing-all .header, 
+    body.is-printing-all #score-panel { display: none !important; }
+    body.is-printing-all #print-all-area { display: block !important; }
+    
+    .print-q-item { 
+      margin-bottom: 12pt; page-break-inside: avoid; 
+      border-left: 3pt solid #0090cc; padding: 6pt 12pt;
+      background: #fcfdfe !important; border-top: 1px solid #e1e8f0;
+      border-right: 1px solid #e1e8f0; border-bottom: 1px solid #e1e8f0;
+      border-radius: 0 4pt 4pt 0;
+    }
+    .print-q-text { font-weight: 700; font-size: 10.5pt; margin-bottom: 6pt; color: #0f172a; line-height: 1.4; }
+    .print-q-meta { font-family: var(--font-mono); font-size: 8pt; color: #0090cc; font-weight: 700; margin-bottom: 4pt; text-transform: uppercase; letter-spacing: 0.5pt; }
+    .print-opts-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6pt; margin-top: 2pt; }
+    .print-opt { 
+      font-size: 9.5pt; color: #334155; display: flex; align-items: flex-start; gap: 6pt;
+    }
+    .print-opt-letter {
+      background: #f1f5f9 !important; border: 1px solid #cbd5e1;
+      width: 18pt; height: 18pt; display: flex; align-items: center; justify-content: center;
+      border-radius: 3pt; font-weight: 700; font-size: 8pt; color: #475569; flex-shrink: 0;
+    }
+    .print-section-header {
+      background: #0090cc !important; color: #fff !important;
+      padding: 5pt 12pt; border-radius: 4pt; margin: 15pt 0 10pt;
+      font-family: var(--font-display); font-size: 11pt; font-weight: 700;
+      text-transform: uppercase; letter-spacing: 1pt;
+    }
   }
 
   @media (max-width:600px) {
@@ -466,7 +497,12 @@
         <div class="topics-grid" id="topics-grid"></div>
       </div>
 
-      <button class="btn-start" onclick="startQuiz()">▶&nbsp;&nbsp;Start Quiz</button>
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 10px;">
+        <button class="btn-start" style="margin-top: 0" onclick="startQuiz()">▶&nbsp;&nbsp;Start Quiz</button>
+        <button class="btn-action outline" style="padding: 16px; border-radius: 12px; height: 100%; display: flex; align-items: center; justify-content: center; gap: 8px;" onclick="printFullQuiz()">
+          <span>🖨</span> Print Questions (A4)
+        </button>
+      </div>
     </div>
   </div>
 
@@ -519,6 +555,9 @@
 
     <div class="review-section" id="review-section"></div>
   </div>
+
+  <!-- PRINT ALL AREA -->
+  <div id="print-all-area" style="display: none;"></div>
 
 </div>
 
@@ -752,6 +791,57 @@ function showResults(){
 
 function retryQuiz(){ document.getElementById('score-panel').style.display='none'; document.getElementById('config-area').style.display='block'; }
 function goHome(){ retryQuiz(); }
+
+function printFullQuiz() {
+  const printArea = document.getElementById('print-all-area');
+  const letters = ['A', 'B', 'C', 'D'];
+  
+  let html = `
+    <div style="text-align: center; margin-bottom: 20pt; border-bottom: 2pt solid #0090cc; padding-bottom: 10pt;">
+      <h1 style="border: none; font-size: 24pt; margin: 0; color: #0f172a;">Computer Network Security</h1>
+      <div style="margin-top: 5pt; display: flex; justify-content: center; gap: 15pt; color: #64748b; font-size: 9pt; font-weight: 600;">
+        <span>📋 ${ALL_QUESTIONS.length} Questions</span>
+        <span>📑 7 Topics</span>
+        <span>✅ Answer Key Included</span>
+      </div>
+    </div>
+  `;
+
+  // Group by topic
+  const topics = [...new Set(ALL_QUESTIONS.map(q => q.topic))];
+  
+  topics.forEach(topic => {
+    const topicQs = ALL_QUESTIONS.filter(q => q.topic === topic);
+    html += `<div class="print-section-header">${topic}</div>`;
+    
+    topicQs.forEach((q, idx) => {
+      html += `
+        <div class="print-q-item">
+          <div class="print-q-meta">Question ${String(q.id).padStart(2, '0')}</div>
+          <div class="print-q-text">${q.q}</div>
+          <div class="print-opts-grid">
+            ${q.opts.map((opt, i) => {
+              const isCorrect = i === q.ans;
+              return `
+                <div class="print-opt" style="${isCorrect ? 'font-weight: 700; color: #008844;' : ''}">
+                  <div class="print-opt-letter" style="${isCorrect ? 'background: #008844 !important; color: #fff !important; border-color: #008844 !important;' : ''}">${letters[i]}</div>
+                  <div style="padding-top: 2pt">${opt} ${isCorrect ? '✓' : ''}</div>
+                </div>
+              `;
+            }).join('')}
+          </div>
+        </div>
+      `;
+    });
+  });
+
+  printArea.innerHTML = html;
+  
+  document.body.classList.add('is-printing-all');
+  window.print();
+  
+  setTimeout(() => { document.body.classList.remove('is-printing-all'); }, 1000);
+}
 </script>
 </body>
 </html>
